@@ -65,7 +65,19 @@ void GridMap::setGeometry(const SubmapGeometry& geometry) {
   setGeometry(geometry.getLength(), geometry.getResolution(), geometry.getPosition());
 }
 
-void GridMap::setBasicLayers(const std::vector<std::string>& basicLayers) {
+void GridMap::changeSize(const Length& length)
+{
+  assert(length(0) > 0.0);
+  assert(length(1) > 0.0);
+
+  Size size;
+  size(0) = static_cast<int>(round(length(0) / resolution_));
+  size(1) = static_cast<int>(round(length(1) / resolution_));
+  conservativeResize(size);
+}
+
+void GridMap::setBasicLayers(const std::vector<std::string>& basicLayers)
+{
   basicLayers_ = basicLayers;
 }
 
@@ -848,6 +860,13 @@ void GridMap::resize(const Index& size) {
   }
 }
 
+void GridMap::conservativeResize(const Index& size)
+{
+  size_ = size;
+  for (auto& data : data_) {
+    data.second.conservativeResize(size_(0), size_(1));
+  }
+}
 
 bool GridMap::atPositionBicubicConvolutionInterpolated(const std::string& layer, const Position& position,
                                             float& value) const
