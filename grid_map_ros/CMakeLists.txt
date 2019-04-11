@@ -8,14 +8,12 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   grid_map_core
   grid_map_msgs
-  grid_map_cv
   sensor_msgs
   nav_msgs
   std_msgs
   geometry_msgs
-  cv_bridge
   rosbag
-  tf
+  tf2
   visualization_msgs
 )
 
@@ -40,14 +38,12 @@ catkin_package(
     roscpp
     grid_map_core
     grid_map_msgs
-    grid_map_cv
     sensor_msgs
     nav_msgs
     std_msgs
     geometry_msgs
-    cv_bridge
     rosbag
-    tf
+    tf2
     visualization_msgs
   DEPENDS
 )

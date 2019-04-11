@@ -8,7 +8,6 @@
 
 #include "grid_map_ros/GridMapRosConverter.hpp"
 #include "grid_map_ros/GridMapMsgHelpers.hpp"
-#include <grid_map_cv/grid_map_cv.hpp>
 
 // ROS
 #include <sensor_msgs/point_cloud2_iterator.h>
@@ -340,123 +339,6 @@ bool GridMapRosConverter::initializeFromImage(const sensor_msgs::Image& image,
   gridMap.setFrameId(image.header.frame_id);
   gridMap.setTimestamp(image.header.stamp.toNSec());
   return true;
-}
-
-bool GridMapRosConverter::addLayerFromImage(const sensor_msgs::Image& image,
-                                            const std::string& layer, grid_map::GridMap& gridMap,
-                                            const float lowerValue, const float upperValue,
-                                            const double alphaThreshold)
-{
-  cv_bridge::CvImageConstPtr cvImage;
-  try {
-    // TODO Use `toCvShared()`?
-    cvImage = cv_bridge::toCvCopy(image, image.encoding);
-  } catch (cv_bridge::Exception& e) {
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-    return false;
-  }
-
-  const int cvEncoding = cv_bridge::getCvType(image.encoding);
-  switch (cvEncoding) {
-    case CV_8UC1:
-      return GridMapCvConverter::addLayerFromImage<unsigned char, 1>(cvImage->image, layer, gridMap, lowerValue, upperValue, alphaThreshold);
-    case CV_8UC3:
-      return GridMapCvConverter::addLayerFromImage<unsigned char, 3>(cvImage->image, layer, gridMap, lowerValue, upperValue, alphaThreshold);
-    case CV_8UC4:
-      return GridMapCvConverter::addLayerFromImage<unsigned char, 4>(cvImage->image, layer, gridMap, lowerValue, upperValue, alphaThreshold);
-    case CV_16UC1:
-      return GridMapCvConverter::addLayerFromImage<unsigned short, 1>(cvImage->image, layer, gridMap, lowerValue, upperValue, alphaThreshold);
-    case CV_16UC3:
-      return GridMapCvConverter::addLayerFromImage<unsigned short, 3>(cvImage->image, layer, gridMap, lowerValue, upperValue, alphaThreshold);
-    case CV_16UC4:
-      return GridMapCvConverter::addLayerFromImage<unsigned short, 4>(cvImage->image, layer, gridMap, lowerValue, upperValue, alphaThreshold);
-    default:
-      ROS_ERROR("Expected MONO8, MONO16, RGB(A)8, RGB(A)16, BGR(A)8, or BGR(A)16 image encoding.");
-      return false;
-  }
-}
-
-bool GridMapRosConverter::addColorLayerFromImage(const sensor_msgs::Image& image,
-                                                 const std::string& layer,
-                                                 grid_map::GridMap& gridMap)
-{
-  cv_bridge::CvImageConstPtr cvImage;
-  try {
-    cvImage = cv_bridge::toCvCopy(image, image.encoding);
-  } catch (cv_bridge::Exception& e) {
-    ROS_ERROR("cv_bridge exception: %s", e.what());
-    return false;
-  }
-
-  const int cvEncoding = cv_bridge::getCvType(image.encoding);
-  switch (cvEncoding) {
-    case CV_8UC3:
-      return GridMapCvConverter::addColorLayerFromImage<unsigned char, 3>(cvImage->image, layer, gridMap);
-    case CV_8UC4:
-      return GridMapCvConverter::addColorLayerFromImage<unsigned char, 4>(cvImage->image, layer, gridMap);
-    case CV_16UC3:
-      return GridMapCvConverter::addColorLayerFromImage<unsigned short, 3>(cvImage->image, layer, gridMap);
-    case CV_16UC4:
-      return GridMapCvConverter::addColorLayerFromImage<unsigned short, 4>(cvImage->image, layer, gridMap);
-    default:
-      ROS_ERROR("Expected RGB(A)8, RGB(A)16, BGR(A)8, or BGR(A)16 image encoding.");
-      return false;
-  }
-}
-
-bool GridMapRosConverter::toImage(const grid_map::GridMap& gridMap, const std::string& layer,
-                                  const std::string encoding, sensor_msgs::Image& image)
-{
-  cv_bridge::CvImage cvImage;
-  if (!toCvImage(gridMap, layer, encoding, cvImage)) return false;
-  cvImage.toImageMsg(image);
-  return true;
-}
-
-bool GridMapRosConverter::toImage(const grid_map::GridMap& gridMap, const std::string& layer,
-                                  const std::string encoding, const float lowerValue,
-                                  const float upperValue, sensor_msgs::Image& image)
-{
-  cv_bridge::CvImage cvImage;
-  if (!toCvImage(gridMap, layer, encoding, lowerValue, upperValue, cvImage)) return false;
-  cvImage.toImageMsg(image);
-  return true;
-}
-
-bool GridMapRosConverter::toCvImage(const grid_map::GridMap& gridMap, const std::string& layer,
-                                    const std::string encoding, cv_bridge::CvImage& cvImage)
-{
-  const float minValue = gridMap.get(layer).minCoeffOfFinites();
-  const float maxValue = gridMap.get(layer).maxCoeffOfFinites();
-  return toCvImage(gridMap, layer, encoding, minValue, maxValue, cvImage);
-}
-
-bool GridMapRosConverter::toCvImage(const grid_map::GridMap& gridMap, const std::string& layer,
-                                    const std::string encoding, const float lowerValue,
-                                    const float upperValue, cv_bridge::CvImage& cvImage)
-{
-  cvImage.header.stamp.fromNSec(gridMap.getTimestamp());
-  cvImage.header.frame_id = gridMap.getFrameId();
-  cvImage.encoding = encoding;
-
-  const int cvEncoding = cv_bridge::getCvType(encoding);
-  switch (cvEncoding) {
-    case CV_8UC1:
-      return GridMapCvConverter::toImage<unsigned char, 1>(gridMap, layer, cvEncoding, lowerValue, upperValue, cvImage.image);
-    case CV_8UC3:
-      return GridMapCvConverter::toImage<unsigned char, 3>(gridMap, layer, cvEncoding, lowerValue, upperValue, cvImage.image);
-    case CV_8UC4:
-      return GridMapCvConverter::toImage<unsigned char, 4>(gridMap, layer, cvEncoding, lowerValue, upperValue, cvImage.image);
-    case CV_16UC1:
-      return GridMapCvConverter::toImage<unsigned short, 1>(gridMap, layer, cvEncoding, lowerValue, upperValue, cvImage.image);
-    case CV_16UC3:
-      return GridMapCvConverter::toImage<unsigned short, 3>(gridMap, layer, cvEncoding, lowerValue, upperValue, cvImage.image);
-    case CV_16UC4:
-      return GridMapCvConverter::toImage<unsigned short, 4>(gridMap, layer, cvEncoding, lowerValue, upperValue, cvImage.image);
-    default:
-      ROS_ERROR("Expected MONO8, MONO16, RGB(A)8, RGB(A)16, BGR(A)8, or BGR(A)16 image encoding.");
-      return false;
-  }
 }
 
 bool GridMapRosConverter::saveToBag(const grid_map::GridMap& gridMap, const std::string& pathToBag,

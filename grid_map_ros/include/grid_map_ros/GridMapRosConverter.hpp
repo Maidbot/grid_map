@@ -25,7 +25,6 @@
 #include <sensor_msgs/image_encodings.h>
 #include <nav_msgs/OccupancyGrid.h>
 #include <nav_msgs/GridCells.h>
-#include <cv_bridge/cv_bridge.h>
 
 namespace grid_map {
 
@@ -154,86 +153,6 @@ class GridMapRosConverter
   static bool initializeFromImage(const sensor_msgs::Image& image, const double resolution,
                                   grid_map::GridMap& gridMap,
                                   const grid_map::Position& position = grid_map::Position::Zero());
-
-  /*!
-   * Adds a layer with data from image.
-   * @param[in] image the image to be added. If it is a color image
-   * (bgr or bgra encoding), it will be transformed in a grayscale image.
-   * @param[in] layer the layer that is filled with the image data.
-   * @param[out] gridMap the grid map to be populated.
-   * @param[in](optional) lowerValue value of the layer corresponding to black image pixels.
-   * @param[in](optional) upperValue value of the layer corresponding to white image pixels.
-   * @param[in](optional) alphaThreshold the threshold ([0.0, 1.0]) for the alpha value at which
-   * cells in the grid map are marked as empty.
-   * @return true if successful, false otherwise.
-   */
-  static bool addLayerFromImage(const sensor_msgs::Image& image, const std::string& layer,
-                                grid_map::GridMap& gridMap, const float lowerValue = 0.0,
-                                const float upperValue = 1.0, const double alphaThreshold = 0.5);
-
-  /*!
-   * Adds a color layer with data from an image.
-   * @param[in] image the image to be added.
-   * @param[in] layer the layer that is filled with the image.
-   * @param[out] gridMap the grid map to be populated.
-   * @return true if successful, false otherwise.
-   */
-  static bool addColorLayerFromImage(const sensor_msgs::Image& image, const std::string& layer,
-                                     grid_map::GridMap& gridMap);
-
-  /*!
-   * Creates an image message from a grid map layer.
-   * This conversion sets the corresponding black and white pixel value to the
-   * min. and max. data of the layer data.
-   * @param[in] grid map to be added.
-   * @param[in] layer the layer that is converted to the image.
-   * @param[in] encoding the desired encoding of the image.
-   * @param[out] image the message to be populated.
-   * @return true if successful, false otherwise.
-   */
-  static bool toImage(const grid_map::GridMap& gridMap, const std::string& layer,
-                      const std::string encoding, sensor_msgs::Image& image);
-
-  /*!
-   * Creates an image message from a grid map layer.
-   * @param[in] grid map to be added.
-   * @param[in] layer the layer that is converted to the image.
-   * @param[in] encoding the desired encoding of the image.
-   * @param[in] lowerValue the value of the layer corresponding to black image pixels.
-   * @param[in] upperValue the value of the layer corresponding to white image pixels.
-   * @param[out] image the message to be populated.
-   * @return true if successful, false otherwise.
-   */
-  static bool toImage(const grid_map::GridMap& gridMap, const std::string& layer,
-                      const std::string encoding, const float lowerValue, const float upperValue,
-                      sensor_msgs::Image& image);
-
-  /*!
-   * Creates a cv image from a grid map layer.
-   * This conversion sets the corresponding black and white pixel value to the
-   * min. and max. data of the layer data.
-   * @param[in] grid map to be added.
-   * @param[in] layer the layer that is converted to the image.
-   * @param[in] encoding the desired encoding of the image.
-   * @param[out] cvImage the to be populated.
-   * @return true if successful, false otherwise.
-   */
-  static bool toCvImage(const grid_map::GridMap& gridMap, const std::string& layer,
-                        const std::string encoding, cv_bridge::CvImage& cvImage);
-
-/*!
- * Creates a cv image from a grid map layer.
- * @param[in] grid map to be added.
- * @param[in] layer the layer that is converted to the image.
- * @param[in] encoding the desired encoding of the image.
- * @param[in] lowerValue the value of the layer corresponding to black image pixels.
- * @param[in] upperValue the value of the layer corresponding to white image pixels.
- * @param[out] cvImage to be populated.
- * @return true if successful, false otherwise.
- */
-  static bool toCvImage(const grid_map::GridMap& gridMap, const std::string& layer,
-                        const std::string encoding, const float lowerValue,
-                        const float upperValue, cv_bridge::CvImage& cvImage);
 
   /*!
    * Saves a grid map into a ROS bag. The timestamp of the grid map
