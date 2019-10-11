@@ -5,7 +5,6 @@ set(CMAKE_CXX_FLAGS "-std=c++11 ${CMAKE_CXX_FLAGS}")
 
 ## Find catkin macros and libraries
 find_package(catkin REQUIRED COMPONENTS
-  cv_bridge
   roscpp
   grid_map_core
   grid_map_msgs
@@ -36,7 +35,6 @@ catkin_package(
   LIBRARIES
     ${PROJECT_NAME}
   CATKIN_DEPENDS
-    cv_bridge
     roscpp
     grid_map_core
     grid_map_msgs
