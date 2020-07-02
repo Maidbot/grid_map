@@ -274,6 +274,12 @@ bool GridMap::getIndex(const Position& position, Index& index) const
   return getIndexFromPosition(index, position, length_, position_, resolution_, size_, startIndex_);
 }
 
+void GridMap::getIndexNoCheck(const Position& position, Index& index) const
+{
+  index(0) = (position_(0) + 0.5*length_(0) - position(0))/resolution_;
+  index(1) = (position_(1) + 0.5*length_(1) - position(1))/resolution_;
+}
+
 bool GridMap::getPosition(const Index& index, Position& position) const
 {
   return getPositionFromIndex(position, index, length_, position_, resolution_, size_, startIndex_);
@@ -705,10 +711,10 @@ bool GridMap::atPositionLinearInterpolated(const std::string& layer, const Posit
   Index indices[4];
   bool idxTempDir;
   size_t idxShift[4];
-  
+
   getIndex(position, indices[0]);
   getPosition(indices[0], point);
-  
+
   if (position.x() >= point.x()) {
     indices[1] = indices[0] + Index(-1, 0); // Second point is above first point.
     idxTempDir = true;
@@ -720,16 +726,16 @@ bool GridMap::atPositionLinearInterpolated(const std::string& layer, const Posit
       indices[2] = indices[0] + Index(0, -1); // Third point is right of first point.
       if(idxTempDir){ idxShift[0]=0; idxShift[1]=1; idxShift[2]=2; idxShift[3]=3; }
       else          { idxShift[0]=1; idxShift[1]=0; idxShift[2]=3; idxShift[3]=2; }
-      
-      
-  } else { 
-      indices[2] = indices[0] + Index(0, +1); 
+
+
+  } else {
+      indices[2] = indices[0] + Index(0, +1);
       if(idxTempDir){ idxShift[0]=2; idxShift[1]=3; idxShift[2]=0; idxShift[3]=1; }
       else          { idxShift[0]=3; idxShift[1]=2; idxShift[2]=1; idxShift[3]=0; }
   }
   indices[3].x() = indices[1].x();
   indices[3].y() = indices[2].y();
-  
+
   const Size& mapSize = getSize();
   const size_t bufferSize = mapSize(0) * mapSize(1);
   const size_t startIndexLin = getLinearIndexFromIndex(startIndex_, mapSize);
@@ -746,8 +752,8 @@ bool GridMap::atPositionLinearInterpolated(const std::string& layer, const Posit
   getPosition(indices[idxShift[0]], point);
   const Position positionRed     = ( position - point ) / resolution_;
   const Position positionRedFlip = Position(1.,1.) - positionRed;
-  
-  value = f[0] * positionRedFlip.x() * positionRedFlip.y() + 
+
+  value = f[0] * positionRedFlip.x() * positionRedFlip.y() +
           f[1] *     positionRed.x() * positionRedFlip.y() +
           f[2] * positionRedFlip.x() *     positionRed.y() +
           f[3] *     positionRed.x() *     positionRed.y();
