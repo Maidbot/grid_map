@@ -70,6 +70,12 @@ public:
    */
   bool isPastEnd() const;
 
+  /*!
+   * Indicates if iterator is at the end.
+   * @return true if iterator is out of scope, false if end-1 has not been reached.
+   */
+  bool isAtEnd() const;
+
 private:
 
 

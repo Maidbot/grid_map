@@ -76,6 +76,11 @@ bool LineIterator::isPastEnd() const
   return iCell_ >= nCells_;
 }
 
+bool LineIterator::isAtEnd() const
+{
+  return iCell_ >= nCells_-1;
+}
+
 bool LineIterator::initialize(const grid_map::GridMap& gridMap, const Index& start, const Index& end)
 {
     start_ = start;
