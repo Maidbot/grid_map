@@ -55,7 +55,9 @@ bool OccupancyGridVisualization::visualize(const grid_map::GridMap& map)
 {
   if (!isActive()) return true;
   if (!map.exists(layer_)) {
-    ROS_WARN_STREAM("OccupancyGridVisualization::visualize: No grid map layer with name '" << layer_ << "' found.");
+    // NOTE: This was commented out because we want to visualize all of the tiles in memory,
+    //       but some of the layers (e.g. coverage) might not yet exist for certain tiles
+//    ROS_WARN_STREAM("OccupancyGridVisualization::visualize: No grid map layer with name '" << layer_ << "' found.");
     return false;
   }
   nav_msgs::OccupancyGrid occupancyGrid;
